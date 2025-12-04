@@ -1,0 +1,13 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    "module": "ESNext",           // nodenext is fine for React, but ESNext works for Node
+    "target": "ES2020",           // modern JS features
+    "moduleResolution": "node",   // important for Node imports
+    "strict": true,
+    "esModuleInterop": true,      // allows import express from 'express'
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node"]             // include Node.js types
+  }
+}

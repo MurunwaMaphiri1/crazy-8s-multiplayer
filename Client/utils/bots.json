@@ -1,0 +1,72 @@
+[
+  {
+    "id": "1",
+    "name": "Akechi",
+    "avatar": "/Images/Persona-5-icons/Akechi.jpg",
+    "cards": [],
+    "isBot": true
+  },
+  {
+    "id": "2",
+    "name": "Joker",
+    "avatar": "/Images/Persona-5-icons/Joker.jpg",
+    "cards": [],
+    "isBot": true
+  },
+  {
+    "id": "3",
+    "name": "Makoto",
+    "avatar": "/Images/Persona-5-icons/Makoto.jpg",
+    "cards": [],
+    "isBot": true
+  },
+  {
+    "id": "4",
+    "name": "Ryuji",
+    "avatar": "/Images/Persona-5-icons/Ryuji.jpg",
+    "cards": [],
+    "isBot": true
+  },
+    {
+    "id": "5",
+    "name": "Ann",
+    "avatar": "/Images/Persona-5-icons/Ann.jpg",
+    "cards": [],
+    "isBot": true
+  },
+  {
+    "id": "6",
+    "name": "Futaba",
+    "avatar": "/Images/Persona-5-icons/Futaba.jpg",
+    "cards": [],
+    "isBot": true
+  },
+    {
+    "id": "7",
+    "name": "Haru",
+    "avatar": "/Images/Persona-5-icons/Haru.jpg",
+    "cards": [],
+    "isBot": true
+  },
+  {
+    "id": "8",
+    "name": "Kasumi",
+    "avatar": "/Images/Persona-5-icons/Kasumi.jpg",
+    "cards": [],
+    "isBot": true
+  },
+  {
+    "id": "9",
+    "name": "Morgana",
+    "avatar": "/Images/Persona-5-icons/Morgana.jpg",
+    "cards": [],
+    "isBot": true
+  },
+  {
+    "id": "10",
+    "name": "Yusuke",
+    "avatar": "/Images/Persona-5-icons/Yusuke.jpg",
+    "cards": [],
+    "isBot": true
+  }
+]
