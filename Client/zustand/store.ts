@@ -4,10 +4,9 @@ import cards from "../utils/deckofcards.json"
 import bots from "../utils/bots.json"
 import { Deck } from "../utils/Deck"
 import { io } from "socket.io-client"
-import { p } from "framer-motion/client"
 
 const jsonCards = cards as Card[];
-const socket = io("http://localhost:3000"); 
+let socket: any = null;
 
 type GameStore = {
   players: Player[];
@@ -40,6 +39,7 @@ type GameStore = {
   changeSuit: (newSuit: Suit) => void;
   resetGame: () => void;
   initPlayers: () => void;
+  initOnlinePlayer: () => void;
   dealCards: () => void;
 }
 
@@ -67,6 +67,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   initOnlinePlayer: () => {
     if (typeof window === "undefined") return;
 
+    if (!socket) {
+      socket = io("http://localhost:3000"); 
+    }
+
     const player1: Player = {
       id: crypto.randomUUID(),
       socketId: "",
@@ -76,13 +80,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       isBot: false,
     };
 
-    socket.emit("join-room", player1);
+    socket.on("connect", () => {
+      player1.socketId = socket.id;
+      socket.emit("join-room", player1);
+    })
 
     socket.on("room-updated", (updatedPlayers: Player[]) => {
-      const player2 = updatedPlayers.find(p => p.id !== player1.id) || null;
-      console.log("Updated Players:", updatedPlayers);
+      set({ players: updatedPlayers })
+      console.log(updatedPlayers)
     }
     );
+
+    socket.on("deal-cards", () => {
+      get().dealCards();
+    })
   },
 
   //Craete players array

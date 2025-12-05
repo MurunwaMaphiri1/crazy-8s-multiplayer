@@ -98,7 +98,7 @@ export default function Home() {
           </Button>
           <Button 
             variant="outlined"
-            href="/game"
+            href="/multiplayer"
             onClick={resetGame}
             sx={{
               mb: 3,
