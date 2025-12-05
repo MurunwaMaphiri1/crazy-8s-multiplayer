@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useGameStore } from "../../zustand/store";
 import Scoreboard from "../components/Scoreboard/Leaderboard";
 import SuitChange from "../components/SuitChange/SuitChange";
 import PlayerHand from "../components/PlayerHand/PlayerHand";
@@ -7,44 +6,45 @@ import BotHand from "../components/BotHand/BotHand";
 import DrawingDeck from "../components/DrawingDeck/DrawingDeck";
 import DiscardPile from "../components/DiscardedPile/DiscardPile";
 import WaitingLobby from "../components/WaitingLobby/WaitingLobby";
+import type { Player } from "../../utils/interface";
+import { io } from "socket.io-client";
+
+let socket: any = null;
 
 export default function Multiplayer() {
-  const { players = useGameStore((state) => state.players),
-          initOnlinePlayer,
-          repopulateDeck,
-          changeSuit,
-          dealCards,
-          draw,
-          playCard,
-          compPlay,
-          deck,
-          discardPile,
-          turnIndex,
-          suit,
-          leaderBoard,
-          cardsDealt,
-          gamesOver,
-          showSuitPicker
-        } = useGameStore();
-
-  const [showLobby, setShowLobby] = useState(true);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [showLobby, setShowLobby] = useState(true)
   const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
-      if (gamesOver) return;
-      if (cardsDealt && players.length > 0 && players[turnIndex]?.isBot === true) {
-          const botTimeout = setTimeout(() => {
-              compPlay()
-          }, 1000)
-          return () => clearTimeout(botTimeout);
-      }
-  }, [turnIndex, cardsDealt, players]);
+    if (typeof window === "undefined") return;
+
+    if (!socket) {
+      socket = io("http://localhost:3000");
+    }
+
+    const player1: Player = {
+      id: crypto.randomUUID(),
+      socketId: "",
+      name: localStorage.getItem("playerName") || "Joker",
+      avatar: localStorage.getItem("playerAvatar") || "/Images/Persona-5-icons/Joker.jpg",
+      cards: [],
+      isBot: false,
+    }
+
+    socket.on("connect", () => {
+      player1.socketId = socket.id;
+      socket.emit("join-room", player1);
+    })
+
+    socket.on("room-updated", (updatedPlayers: Player[]) => {
+      setPlayers(updatedPlayers);
+    })
+  }, [])
 
   useEffect(() => {
-          if (deck.cards.length === 0 && discardPile.length > 1) {
-              repopulateDeck();
-          }
-  }, [deck.cards.length, discardPile.length]);
+    
+  }, []);
 
   useEffect(() => {
     if (players.length >= 2 && showLobby) {
