@@ -1,5 +1,5 @@
 import Card from "../Card/Card"
-import type { Card as CardType } from "../../../utils/interface"
+import type { Card as CardType } from "../../../../Shared/utils/interface"
 import { motion, animate } from "framer-motion"
 
 type BotHandProps = {

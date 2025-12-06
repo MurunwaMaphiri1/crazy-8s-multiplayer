@@ -1,12 +1,12 @@
 import { create } from "zustand"
-import type { Card, Player, Suit, Bot } from "../utils/interface"
-import cards from "../utils/deckofcards.json"
-import bots from "../utils/bots.json"
-import { Deck } from "../utils/Deck"
+import type { Card, Player, Suit, Bot } from "../../Shared/utils/interface"
+import cards from "../../Shared/utils/deckofcards.json"
+import bots from "../../Shared/utils/bots.json"
+import { Deck } from "../../Shared/utils/Deck"
 import { io } from "socket.io-client"
 
 const jsonCards = cards as Card[];
-let socket: any = null;
+// let socket: any = null;
 
 type GameStore = {
   players: Player[];
@@ -39,7 +39,7 @@ type GameStore = {
   changeSuit: (newSuit: Suit) => void;
   resetGame: () => void;
   initPlayers: () => void;
-  initOnlinePlayer: () => void;
+  // initOnlinePlayer: () => void;
   dealCards: () => void;
 }
 
@@ -64,37 +64,37 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setGameOver: (gamesOver) => set({ gamesOver }),
   setSuitPicker: (showSuitPicker) => set({ showSuitPicker }),
 
-  initOnlinePlayer: () => {
-    if (typeof window === "undefined") return;
+  // initOnlinePlayer: () => {
+  //   if (typeof window === "undefined") return;
 
-    if (!socket) {
-      socket = io("http://localhost:3000"); 
-    }
+  //   if (!socket) {
+  //     socket = io("http://localhost:3000"); 
+  //   }
 
-    const player1: Player = {
-      id: crypto.randomUUID(),
-      socketId: "",
-      name: localStorage.getItem("playerName") || "Joker",
-      avatar: localStorage.getItem("playerImg") || "/Images/Persona-5-icons/Joker.jpg",
-      cards: [],
-      isBot: false,
-    };
+  //   const player1: Player = {
+  //     id: crypto.randomUUID(),
+  //     socketId: "",
+  //     name: localStorage.getItem("playerName") || "Joker",
+  //     avatar: localStorage.getItem("playerImg") || "/Images/Persona-5-icons/Joker.jpg",
+  //     cards: [],
+  //     isBot: false,
+  //   };
 
-    socket.on("connect", () => {
-      player1.socketId = socket.id;
-      socket.emit("join-room", player1);
-    })
+  //   socket.on("connect", () => {
+  //     player1.socketId = socket.id;
+  //     socket.emit("join-room", player1);
+  //   })
 
-    socket.on("room-updated", (updatedPlayers: Player[]) => {
-      set({ players: updatedPlayers })
-      console.log(updatedPlayers)
-    }
-    );
+  //   socket.on("room-updated", (updatedPlayers: Player[]) => {
+  //     set({ players: updatedPlayers })
+  //     console.log(updatedPlayers)
+  //   }
+  //   );
 
-    socket.on("deal-cards", () => {
-      get().dealCards();
-    })
-  },
+  //   socket.on("deal-cards", () => {
+  //     get().dealCards();
+  //   })
+  // },
 
   //Craete players array
   initPlayers: () => {

@@ -4,7 +4,6 @@ import { Paper, Typography } from "@mui/material";
 
 export default function WaitingLobby() {
   const players = useGameStore((state) => state.players);
-  const initOnlinePlayer = useGameStore((state) => state.initOnlinePlayer);
   const [countdown, setCountdown] = useState(3);
   const [showLobby, setShowLobby] = useState(true);
 

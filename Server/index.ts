@@ -1,15 +1,16 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import type { Player, Card } from "../Client/utils/interface";
-import { Deck } from "../Client/utils/Deck";
-import cards from '../Client/utils/deckofcards.json'
+import type { Player, Card, Suit } from "../Shared/utils/interface";
+import { Deck } from "../Shared/utils/Deck";
+import cards from '../Shared/utils/deckofcards.json'
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
   },
 });
 
@@ -20,7 +21,7 @@ let gameState = {
     deck: new Deck(jsonCards),
     discardPile: [] as Card[],
     turnIndex: 0,
-    suit: "",
+    suit: "" as Suit,
     leaderBoard: [] as Player[],
     cardsDealt: false,
     gamesOver: false,
@@ -39,12 +40,20 @@ io.on("connection", (socket) => {
 
         io.emit("room-updated", gameState.players);
         console.log("Updated players:", gameState.players);
+        io.emit("cards-dealt", {
+          players: gameState.players,
+          discardPile: gameState.discardPile,
+          turnIndex: gameState.turnIndex,
+          suit: gameState.suit,
+          cardsDealt: gameState.cardsDealt,
+        });
     });
 
     socket.on("disconnect", () => {
         console.log("user disconnected:", socket.id);
         gameState.players = gameState.players.filter(p => p.socketId !== socket.id);
         io.emit("room-updated", gameState.players);
+        io.emit("reset-game");
     });
 
     socket.on("start-game", () => {
@@ -64,12 +73,27 @@ io.on("connection", (socket) => {
       gameState.cardsDealt = true;
       gameState.turnIndex = 0;
       gameState.suit = gameState.discardPile[gameState.discardPile.length - 1].suit;
+
+      io.emit("cards-dealt", {
+        players: gameState.players,
+        discardPile: gameState.discardPile,
+        turnIndex: gameState.turnIndex,
+        suit: gameState.suit,
+        cardsDealt: gameState.cardsDealt,
+      })
     })
 
     socket.on("advance-turn", () => {
       gameState.turnIndex = (gameState.turnIndex + 1) % gameState.players.length;
       io.emit("turn-advanced", gameState.turnIndex);
     });
+
+    socket.on("change-suit", (newSuit: Suit) => {
+      gameState.suit = newSuit;
+      gameState.showSuitPicker = false;
+      io.emit("suit-changed", newSuit);
+      socket.emit("advance-turn");
+    })
 
     socket.on("repopulate-deck", () => {
       const cardsToShuffle = gameState.discardPile.slice(0, -1);
@@ -83,10 +107,10 @@ io.on("connection", (socket) => {
     socket.on("handle-card-effect", (selectedCard: Card) => {
       switch (selectedCard.value) {
         case "2":
-          socket.emit("draw2");
+          io.emit("draw2");
           break;
         case "JACK":
-          socket.emit("jump-player");
+          io.emit("jump-player");
           break;
         case "8":
             if (gameState.players[gameState.turnIndex].isBot == true) {
@@ -143,10 +167,13 @@ io.on("connection", (socket) => {
 
       gameState.players = updatedPlayers;
       gameState.turnIndex = (gameState.turnIndex + 2) % gameState.players.length;
+      io.emit("cards-drawn", { playerIndex: nextPlayerIndex, cards: drawnCards });
+      io.emit("turn-advanced", gameState.turnIndex);
     });
 
     socket.on("jump-player", () => {
       gameState.turnIndex = (gameState.turnIndex + 2) % gameState.players.length;
+      io.emit("turn-advanced", gameState.turnIndex);
     });
 
     socket.on("playCard", (selectedCard: Card) => {
@@ -194,12 +221,19 @@ io.on("connection", (socket) => {
           }
 
           if (selectedCard.value === "JACK" || selectedCard.value === "2") {
-            socket.emit("handle-card-effect", selectedCard);
+            io.emit("handle-card-effect", selectedCard);
           } else if (selectedCard.value === "8") {
-            socket.emit("handle-card-effect", selectedCard);
+            io.emit("handle-card-effect", selectedCard);
           } else {
-            socket.emit("advance-turn");
+            io.emit("advance-turn");
           }
+
+          io.emit("state-updated", {
+            players: gameState.players,
+            discardPile: gameState.discardPile,
+            turnIndex: gameState.turnIndex,
+            suit: gameState.suit,
+          })
         }
       }
   }})
@@ -255,16 +289,16 @@ io.on("connection", (socket) => {
                     }
 
                     if (selected.value === "JACK" || selected.value === "2") {
-                        socket.emit("handle-card-effect", selected)
+                        io.emit("handle-card-effect", selected)
                     } else if (selected.value === "8") {
-                        socket.emit("handle-card-effect", selected)
-                        socket.emit("advance-turn");
+                        io.emit("handle-card-effect", selected)
+                        io.emit("advance-turn");
                     } else {
-                        socket.emit("advance-turn");
+                        io.emit("advance-turn");
                     }
                 }
     } else {
-        socket.emit("draw-card");
+        io.emit("draw-card");
     }
   })
 
@@ -274,7 +308,7 @@ io.on("connection", (socket) => {
         deck: new Deck(jsonCards),
         discardPile: [] as Card[],
         turnIndex: 0,
-        suit: "",
+        suit: "" as Suit,
         leaderBoard: [] as Player[],
         cardsDealt: false,
         gamesOver: false,
