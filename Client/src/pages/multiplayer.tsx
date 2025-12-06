@@ -6,7 +6,7 @@ import BotHand from "../components/BotHand/BotHand";
 import DrawingDeck from "../components/DrawingDeck/DrawingDeck";
 import DiscardPile from "../components/DiscardedPile/DiscardPile";
 import WaitingLobby from "../components/WaitingLobby/WaitingLobby";
-import type { Player, Card, Suit } from "../../utils/interface";
+import type { Player, Card, Suit } from "../../../Shared/utils/interface";
 import { Deck } from "../../../Shared/utils/Deck";
 import { io } from "socket.io-client";
 import cards from "../../../Shared/utils/deckofcards.json";
@@ -80,6 +80,12 @@ export default function Multiplayer() {
       setDiscardPile(state.discardPile);
       setTurnIndex(state.turnIndex);
       setSuit(state.suit);
+    })
+  })
+
+  useEffect(() => {
+    socket.on("turnIndex-updated", () => {
+      setTurnIndex(turnIndex);
     })
   })
 

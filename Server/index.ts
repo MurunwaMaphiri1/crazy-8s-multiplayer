@@ -86,6 +86,9 @@ io.on("connection", (socket) => {
     socket.on("advance-turn", () => {
       gameState.turnIndex = (gameState.turnIndex + 1) % gameState.players.length;
       io.emit("turn-advanced", gameState.turnIndex);
+      io.emit("turnIndex-updated", {
+        turnIndex: gameState.turnIndex,
+      })
     });
 
     socket.on("change-suit", (newSuit: Suit) => {
@@ -136,6 +139,13 @@ io.on("connection", (socket) => {
                 gameState.showSuitPicker = true;
             }
       }
+      io.emit("state-updated", {
+        players: gameState.players,
+        discardPile: gameState.discardPile,
+        turnIndex: gameState.turnIndex,
+        suit: gameState.suit,
+        
+      })
     });
 
     socket.on("draw-card", () => {
@@ -151,7 +161,7 @@ io.on("connection", (socket) => {
 
       gameState.players = updatedPlayers;
       io.emit("card-drawn", { playerIndex: gameState.turnIndex, card: drawnCard });
-      socket.emit("advance-turn");
+      io.emit("advance-turn");
     })
 
     socket.on("draw2", () => {
@@ -300,6 +310,11 @@ io.on("connection", (socket) => {
     } else {
         io.emit("draw-card");
     }
+    io.emit("state-updated", {
+      players: gameState.players,
+      discardPile: gameState.discardPile,
+      turnIndex: gameState.turnIndex,
+      suit: gameState.suit,
   })
 
   socket.on("reset-game", () => {
@@ -316,6 +331,7 @@ io.on("connection", (socket) => {
     }
   })
 
+});
 });
 
 server.listen(3000, () => {
