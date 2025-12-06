@@ -101,6 +101,7 @@ io.on("connection", (socket) => {
         showSuitPicker: gameState.showSuitPicker,
         gamesOver: gameState.gamesOver,
         deck: gameState.deck,
+        leaderBoard: gameState.leaderBoard,
       })
     }
 
