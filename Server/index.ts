@@ -49,6 +49,8 @@ io.on("connection", (socket) => {
         });
     });
 
+
+    //Disconnect
     socket.on("disconnect", () => {
         console.log("user disconnected:", socket.id);
         gameState.players = gameState.players.filter(p => p.socketId !== socket.id);
@@ -56,11 +58,8 @@ io.on("connection", (socket) => {
         io.emit("reset-game");
     });
 
-    socket.on("start-game", () => {
-        console.log("Game started by:", socket.id);
-        io.emit("deal-cards");
-    });
 
+    //Deal cards
     socket.on("dealCards", () => {
       console.log("Dealing cards...");
       gameState.deck.shuffle();
@@ -73,24 +72,18 @@ io.on("connection", (socket) => {
       gameState.cardsDealt = true;
       gameState.turnIndex = 0;
       gameState.suit = gameState.discardPile[gameState.discardPile.length - 1].suit;
-
-      io.emit("cards-dealt", {
-        players: gameState.players,
-        discardPile: gameState.discardPile,
-        turnIndex: gameState.turnIndex,
-        suit: gameState.suit,
-        cardsDealt: gameState.cardsDealt,
-      })
+      updatedGameState();
     })
 
-    socket.on("advance-turn", () => {
+
+    //Advance turn helper function
+    function advanceTurn() {
       gameState.turnIndex = (gameState.turnIndex + 1) % gameState.players.length;
       io.emit("turn-advanced", gameState.turnIndex);
-      io.emit("turnIndex-updated", {
-        turnIndex: gameState.turnIndex,
-      })
-    });
+    }
 
+
+    //Change suit
     socket.on("change-suit", (newSuit: Suit) => {
       gameState.suit = newSuit;
       gameState.showSuitPicker = false;
@@ -98,6 +91,21 @@ io.on("connection", (socket) => {
       socket.emit("advance-turn");
     })
 
+    function updatedGameState() {
+      io.emit("state-updated", {
+        players: gameState.players,
+        discardPile: gameState.discardPile,
+        turnIndex: gameState.turnIndex,
+        suit: gameState.suit,
+        cardsDealt: gameState.cardsDealt,
+        showSuitPicker: gameState.showSuitPicker,
+        gamesOver: gameState.gamesOver,
+        deck: gameState.deck,
+      })
+    }
+
+
+    //Repopulate deck
     socket.on("repopulate-deck", () => {
       const cardsToShuffle = gameState.discardPile.slice(0, -1);
       const topCard = gameState.discardPile[gameState.discardPile.length - 1];
@@ -107,13 +115,17 @@ io.on("connection", (socket) => {
       io.emit("deck-repopulated");
     });
 
-    socket.on("handle-card-effect", (selectedCard: Card) => {
+
+    //Handle card effects
+    function handleCardEffect(selectedCard: Card) {
       switch (selectedCard.value) {
         case "2":
-          io.emit("draw2");
+          draw2();
+          advanceTurn();
           break;
         case "JACK":
-          io.emit("jump-player");
+          jumpPlayer();
+          advanceTurn();
           break;
         case "8":
             if (gameState.players[gameState.turnIndex].isBot == true) {
@@ -137,17 +149,14 @@ io.on("connection", (socket) => {
 
             } else {
                 gameState.showSuitPicker = true;
+                return;
             }
       }
-      io.emit("state-updated", {
-        players: gameState.players,
-        discardPile: gameState.discardPile,
-        turnIndex: gameState.turnIndex,
-        suit: gameState.suit,
-        
-      })
-    });
+      updatedGameState();
+    }
 
+
+    //Draw card
     socket.on("draw-card", () => {
       const drawnCard = gameState.deck.takeCard();
 
@@ -160,36 +169,39 @@ io.on("connection", (socket) => {
       )
 
       gameState.players = updatedPlayers;
-      io.emit("card-drawn", { playerIndex: gameState.turnIndex, card: drawnCard });
-      io.emit("advance-turn");
-    })
+      advanceTurn();
+      updatedGameState();
+    });
 
-    socket.on("draw2", () => {
+
+    //Draw 2 cards 
+    function draw2() {
       const drawnCards: Card[] = gameState.deck.takeCards(2);
-
       const nextPlayerIndex = (gameState.turnIndex + 1) % gameState.players.length;
 
-      const updatedPlayers = gameState.players.map((player, index) => 
+      const updatedPlayers = gameState.players.map((player, index) =>
           index === nextPlayerIndex
               ? { ...player, cards: [...player.cards, ...drawnCards] }
               : player
-      )
+      );
 
       gameState.players = updatedPlayers;
       gameState.turnIndex = (gameState.turnIndex + 2) % gameState.players.length;
-      io.emit("cards-drawn", { playerIndex: nextPlayerIndex, cards: drawnCards });
-      io.emit("turn-advanced", gameState.turnIndex);
-    });
+    }
 
-    socket.on("jump-player", () => {
+
+    //Jump player
+    function jumpPlayer() {
       gameState.turnIndex = (gameState.turnIndex + 2) % gameState.players.length;
-      io.emit("turn-advanced", gameState.turnIndex);
-    });
+    }
 
+
+    //Play card
     socket.on("playCard", (selectedCard: Card) => {
       const topCard = gameState.discardPile[gameState.discardPile.length - 1]; 
+      const currentPlayer = gameState.players[gameState.turnIndex];
 
-      if (gameState.players[gameState.turnIndex].isBot === false) {
+      if (currentPlayer.socketId === socket.id) {
         if (
           selectedCard.suit === gameState.suit ||
           selectedCard.value === topCard.value ||
@@ -217,6 +229,9 @@ io.on("connection", (socket) => {
               gameState.gamesOver = true;
               return;
             }
+
+            updatedGameState();
+            return;
         } else {
           const updatedPlayers = gameState.players.map((player, index) =>
             index === gameState.turnIndex
@@ -226,97 +241,26 @@ io.on("connection", (socket) => {
           gameState.players = updatedPlayers;
           gameState.discardPile.push(selectedCard);
 
+          advanceTurn();
+
           if (selectedCard.value === topCard.value) {
             gameState.suit = selectedCard.suit;
           }
 
           if (selectedCard.value === "JACK" || selectedCard.value === "2") {
-            io.emit("handle-card-effect", selectedCard);
+            handleCardEffect(selectedCard);
           } else if (selectedCard.value === "8") {
-            io.emit("handle-card-effect", selectedCard);
+            handleCardEffect(selectedCard);
           } else {
-            io.emit("advance-turn");
+            advanceTurn();
           }
 
-          io.emit("state-updated", {
-            players: gameState.players,
-            discardPile: gameState.discardPile,
-            turnIndex: gameState.turnIndex,
-            suit: gameState.suit,
-          })
+          updatedGameState();
         }
       }
   }})
 
-  socket.on("comp-play", () => {
-    const topCard = gameState.discardPile[gameState.discardPile.length - 1];
-    const currentPlayer = gameState.players[gameState.turnIndex];
-    let selected;
-
-    for (let card of currentPlayer.cards) {
-            if (
-                card.suit === gameState.suit ||
-                card.value === topCard.value ||
-                card.value === "8"
-            ) {
-                selected = card;
-                break;
-            }
-    } 
-
-    if (selected) {
-        const updatedHand = currentPlayer.cards.filter((card) => 
-            !(card.suit === selected.suit && card.value === selected.value)
-        )
-
-        if (updatedHand.length === 0) {
-            const updatedLeaderboard = [...gameState.leaderBoard, currentPlayer]
-            gameState.leaderBoard = updatedLeaderboard;
-
-            const playersWithoutWinner = gameState.players.filter(player => player.id !== currentPlayer.id);
-
-            gameState.players = playersWithoutWinner; 
-            gameState.discardPile.push(selected);
-                
-            if (playersWithoutWinner.length === 1) {
-                gameState.leaderBoard = [...updatedLeaderboard, playersWithoutWinner[0]];
-                gameState.gamesOver = true;
-                return;
-            }
-
-        } else {
-                const updatedPlayers = gameState.players.map((player, index) => 
-                    index === gameState.turnIndex
-                        ? { ...player, cards: updatedHand }
-                        : player
-                    )
-
-                    gameState.players = updatedPlayers;
-                    gameState.discardPile = [...gameState.discardPile, selected];
-
-                    if (selected.value === topCard.value) {
-                        gameState.suit = selected.suit;
-                    }
-
-                    if (selected.value === "JACK" || selected.value === "2") {
-                        io.emit("handle-card-effect", selected)
-                    } else if (selected.value === "8") {
-                        io.emit("handle-card-effect", selected)
-                        io.emit("advance-turn");
-                    } else {
-                        io.emit("advance-turn");
-                    }
-                }
-    } else {
-        io.emit("draw-card");
-    }
-    io.emit("state-updated", {
-      players: gameState.players,
-      discardPile: gameState.discardPile,
-      turnIndex: gameState.turnIndex,
-      suit: gameState.suit,
-  })
-
+  //Reset game state
   socket.on("reset-game", () => {
     gameState = {
         players: [] as Player[],
@@ -331,7 +275,6 @@ io.on("connection", (socket) => {
     }
   })
 
-});
 });
 
 server.listen(3000, () => {

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Scoreboard from "../components/Scoreboard/Leaderboard";
 import SuitChange from "../components/SuitChange/SuitChange";
 import PlayerHand from "../components/PlayerHand/PlayerHand";
-import BotHand from "../components/BotHand/BotHand";
 import DrawingDeck from "../components/DrawingDeck/DrawingDeck";
 import DiscardPile from "../components/DiscardedPile/DiscardPile";
 import WaitingLobby from "../components/WaitingLobby/WaitingLobby";
@@ -34,8 +33,6 @@ export default function Multiplayer() {
       socket = io("http://localhost:3000");
     }
 
-    // socket.emit("reset-game");
-
     const player1: Player = {
       id: crypto.randomUUID(),
       socketId: "",
@@ -59,7 +56,7 @@ export default function Multiplayer() {
       setPlayers(updatedPlayers);
     })
 
-    socket.on("cards-dealt", (state : any) => {
+    socket.on("state-updated", (state : any) => {
       setPlayers(state.players);
       setDiscardPile(state.discardPile);
       setTurnIndex(state.turnIndex);
@@ -84,9 +81,15 @@ export default function Multiplayer() {
   })
 
   useEffect(() => {
-    socket.on("turnIndex-updated", () => {
-      setTurnIndex(turnIndex);
+    socket.on("turn-advanced", (newTurnIndex: number) => {
+      setTurnIndex(newTurnIndex);
     })
+
+    return () => socket.off("turn-advanced")
+  }, [])
+
+  useEffect(() => {
+
   })
 
   useEffect(() => {
@@ -158,7 +161,7 @@ export default function Multiplayer() {
       ) : cardsDealt ? (
               <div className='flex flex-col items-center min-h-screen justify-center bg-[#0f1f3d]'>
                   <div className="top-40">
-                      <BotHand cards={players[1]?.cards || []} />
+                      <PlayerHand onCardClick={handlePlayCard} cards={players[1]?.cards || []} />
                   </div>
                   <div className='flex flex-col mt-3'>
                       <div>

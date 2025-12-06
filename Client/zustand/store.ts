@@ -64,38 +64,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setGameOver: (gamesOver) => set({ gamesOver }),
   setSuitPicker: (showSuitPicker) => set({ showSuitPicker }),
 
-  // initOnlinePlayer: () => {
-  //   if (typeof window === "undefined") return;
-
-  //   if (!socket) {
-  //     socket = io("http://localhost:3000"); 
-  //   }
-
-  //   const player1: Player = {
-  //     id: crypto.randomUUID(),
-  //     socketId: "",
-  //     name: localStorage.getItem("playerName") || "Joker",
-  //     avatar: localStorage.getItem("playerImg") || "/Images/Persona-5-icons/Joker.jpg",
-  //     cards: [],
-  //     isBot: false,
-  //   };
-
-  //   socket.on("connect", () => {
-  //     player1.socketId = socket.id;
-  //     socket.emit("join-room", player1);
-  //   })
-
-  //   socket.on("room-updated", (updatedPlayers: Player[]) => {
-  //     set({ players: updatedPlayers })
-  //     console.log(updatedPlayers)
-  //   }
-  //   );
-
-  //   socket.on("deal-cards", () => {
-  //     get().dealCards();
-  //   })
-  // },
-
   //Craete players array
   initPlayers: () => {
     if (typeof window === "undefined") return;
