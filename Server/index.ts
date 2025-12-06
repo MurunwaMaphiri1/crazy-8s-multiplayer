@@ -87,8 +87,8 @@ io.on("connection", (socket) => {
     socket.on("change-suit", (newSuit: Suit) => {
       gameState.suit = newSuit;
       gameState.showSuitPicker = false;
-      io.emit("suit-changed", newSuit);
-      socket.emit("advance-turn");
+      updatedGameState();
+      advanceTurn();
     })
 
     function updatedGameState() {
@@ -113,6 +113,7 @@ io.on("connection", (socket) => {
       gameState.deck.shuffle();
       gameState.discardPile = [topCard];
       io.emit("deck-repopulated");
+      updatedGameState();
     });
 
 
@@ -121,44 +122,26 @@ io.on("connection", (socket) => {
       switch (selectedCard.value) {
         case "2":
           draw2();
-          advanceTurn();
           break;
         case "JACK":
           jumpPlayer();
-          advanceTurn();
           break;
         case "8":
-            if (gameState.players[gameState.turnIndex].isBot == true) {
-                const suitCount: Record<string, number> = {};
-
-                for (let card of gameState.players[gameState.turnIndex].cards) {
-                    suitCount[card.suit] = (suitCount[card.suit] || 0) + 1;
-                }
-
-                let maxCount = 0;
-                let chosenSuit: Card['suit'] | null = null;
-
-                for (let [cardSuit, count] of Object.entries(suitCount)) {
-                    if (count > maxCount) {
-                        maxCount = count;
-                        chosenSuit = cardSuit as Card['suit'];
-                    }
-                }
-                
-                gameState.suit = chosenSuit || selectedCard.suit;
-
-            } else {
-                gameState.showSuitPicker = true;
-                return;
-            }
+          gameState.showSuitPicker = true;
+          updatedGameState();
+          return;
       }
       updatedGameState();
     }
+    
 
 
     //Draw card
     socket.on("draw-card", () => {
       const drawnCard = gameState.deck.takeCard();
+      const currentPlayer = gameState.players[gameState.turnIndex];
+
+      if (currentPlayer.socketId !== socket.id) return;
 
       if (!drawnCard) return;
 
@@ -187,6 +170,7 @@ io.on("connection", (socket) => {
 
       gameState.players = updatedPlayers;
       gameState.turnIndex = (gameState.turnIndex + 2) % gameState.players.length;
+      updatedGameState();
     }
 
 
@@ -227,6 +211,7 @@ io.on("connection", (socket) => {
             if (playersRemaining.length === 1) {
               gameState.leaderBoard = [...gameState.leaderBoard, playersRemaining[0]];
               gameState.gamesOver = true;
+              updatedGameState();
               return;
             }
 
@@ -240,8 +225,6 @@ io.on("connection", (socket) => {
           );
           gameState.players = updatedPlayers;
           gameState.discardPile.push(selectedCard);
-
-          advanceTurn();
 
           if (selectedCard.value === topCard.value) {
             gameState.suit = selectedCard.suit;

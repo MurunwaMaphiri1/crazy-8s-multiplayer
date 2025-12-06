@@ -1,5 +1,5 @@
 import styled from "styled-components"
-import type { Player } from "../../../utils/interface";
+import type { Player } from "../../../../Shared/utils/interface";
 import { Paper, Typography } from "@mui/material";
 import FirstPlace from "../../../public/Images/Medals/1st Place.png"
 import { useNavigate } from "react-router-dom";

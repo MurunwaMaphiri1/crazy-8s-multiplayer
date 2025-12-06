@@ -62,6 +62,9 @@ export default function Multiplayer() {
       setTurnIndex(state.turnIndex);
       setSuit(state.suit);
       setCardsDealt(state.cardsDealt);
+      setShowSuitPicker(state.showSuitPicker);
+      setGameOver(state.gamesOver);
+      setLeaderBoard(state.leaderBoard);
     })
 
     return () => {
@@ -72,25 +75,12 @@ export default function Multiplayer() {
   }, [])
 
   useEffect(() => {
-    socket.on("state-updated", (state: any) => {
-      setPlayers(state.players);
-      setDiscardPile(state.discardPile);
-      setTurnIndex(state.turnIndex);
-      setSuit(state.suit);
-    })
-  })
-
-  useEffect(() => {
     socket.on("turn-advanced", (newTurnIndex: number) => {
       setTurnIndex(newTurnIndex);
     })
 
     return () => socket.off("turn-advanced")
   }, [])
-
-  useEffect(() => {
-
-  })
 
   useEffect(() => {
     if (gameOver) return;

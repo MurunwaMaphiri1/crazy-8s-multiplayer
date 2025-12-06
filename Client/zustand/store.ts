@@ -3,10 +3,8 @@ import type { Card, Player, Suit, Bot } from "../../Shared/utils/interface"
 import cards from "../../Shared/utils/deckofcards.json"
 import bots from "../../Shared/utils/bots.json"
 import { Deck } from "../../Shared/utils/Deck"
-import { io } from "socket.io-client"
 
 const jsonCards = cards as Card[];
-// let socket: any = null;
 
 type GameStore = {
   players: Player[];
@@ -39,7 +37,6 @@ type GameStore = {
   changeSuit: (newSuit: Suit) => void;
   resetGame: () => void;
   initPlayers: () => void;
-  // initOnlinePlayer: () => void;
   dealCards: () => void;
 }
 
