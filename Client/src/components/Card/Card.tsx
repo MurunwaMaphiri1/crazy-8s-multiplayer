@@ -1,6 +1,5 @@
 import cards from "../../../../Shared/utils/deckofcards.json"
 import type { Card } from "../../../../Shared/utils/interface"
-import React from "react"
 
 type CardProps = {
   code: string

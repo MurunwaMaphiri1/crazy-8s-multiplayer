@@ -1,7 +1,5 @@
 import cards from '../utils/deckofcards.json'
-import type { Card, CardValue, Action } from '../utils/interface.ts'
-
-const jsonCards = cards as Omit<Card, 'action'>[];
+import type { Card } from '../utils/interface'
 
 export class Deck {
     cards: Card[] = [];

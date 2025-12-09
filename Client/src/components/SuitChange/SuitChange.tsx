@@ -1,4 +1,4 @@
-import { Suit } from "@/utils/interface"
+import type { Suit } from "../../../../Shared/utils/interface"
 
 export const SuitSymbols: Record<Suit, string> = {
   DIAMONDS: "♦",

@@ -1,8 +1,7 @@
 import Card from "../Card/Card";
-import type { Card as CardType } from "../../utils/interface"
+import type { Card as CardType } from "../../../../Shared/utils/interface"
 
 type DiscardPileProps = {
-  // cards: { code: string; value: string }[];
   cards: CardType[];
 };
 

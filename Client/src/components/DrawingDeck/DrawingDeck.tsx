@@ -1,5 +1,5 @@
 import Card from "../Card/Card"
-import type { Card as CardType } from "../../utils/interface"
+import type { Card as CardType } from "../../../../Shared/utils/interface"
 
 type DrawingDeckProps = {
     deck: CardType[];
@@ -20,7 +20,7 @@ export default function DrawingDeck({ deck, onCardClick }: DrawingDeckProps) {
     return (
         <>
             <div className="relative flex items-center justify-center h-[150px] w-[100px]">
-                {deck.map((card, index) => (
+                {deck.map((card) => (
                     <div
                         key={`${card.code}`}
                         className="absolute"

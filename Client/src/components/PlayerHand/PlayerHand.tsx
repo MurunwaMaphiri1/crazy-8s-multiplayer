@@ -1,6 +1,6 @@
 import Card from "../Card/Card"
 import type { Card as CardType } from "../../../../Shared/utils/interface"
-import { motion, animate } from "framer-motion"
+import { motion } from "framer-motion"
 
 type PlayerHandProps = {
     cards: CardType[];
