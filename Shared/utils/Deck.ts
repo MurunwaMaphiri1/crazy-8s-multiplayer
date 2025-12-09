@@ -1,4 +1,3 @@
-import cards from '../utils/deckofcards.json'
 import type { Card } from '../utils/interface'
 
 export class Deck {

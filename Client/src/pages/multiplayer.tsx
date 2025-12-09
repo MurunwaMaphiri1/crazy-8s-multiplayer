@@ -15,7 +15,7 @@ const jsonCards = cards as Card[];
 
 export default function Multiplayer() {
   const [players, setPlayers] = useState<Player[]>([]);
-  const [deck, setDeck] = useState(() => new Deck(jsonCards));
+  const [deck] = useState(() => new Deck(jsonCards));
   const [discardPile, setDiscardPile] = useState<Card[]>([]);
   const [turnIndex, setTurnIndex] = useState(0);
   const [suit, setSuit] = useState("");
@@ -24,7 +24,7 @@ export default function Multiplayer() {
   const [gameOver, setGameOver] = useState(false);
   const [showSuitPicker, setShowSuitPicker] = useState(false);
   const [showLobby, setShowLobby] = useState(true)
-  const [countdown, setCountdown] = useState(3);
+  const [, setCountdown] = useState(3);
 
   const player: Player = {
       id: crypto.randomUUID(),
