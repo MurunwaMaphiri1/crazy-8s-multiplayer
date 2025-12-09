@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
-import { useGameStore } from "../../../zustand/store";
-import { Paper, Typography } from "@mui/material";
+import { Avatar, Paper, Typography } from "@mui/material";
+import type { Player } from "../../../../Shared/utils/interface";
 
-export default function WaitingLobby() {
-  const players = useGameStore((state) => state.players);
+type WaitingLobbyProps = {
+  lobbyPlayers : Player[];
+}
+
+export default function WaitingLobby({ lobbyPlayers }: WaitingLobbyProps) {
   const [countdown, setCountdown] = useState(3);
   const [showLobby, setShowLobby] = useState(true);
 
-    useEffect(() => {
-        initOnlinePlayer();
-    }, [initOnlinePlayer]);
-
   useEffect(() => {
-    if (players.length >= 2) {
+    if (lobbyPlayers.length >= 2) {
       const interval = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
@@ -26,36 +25,52 @@ export default function WaitingLobby() {
         clearTimeout(timeout);
       };
     }
-  }, [players]);
+  }, [lobbyPlayers]);
 
   if (!showLobby) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f1f3d] p-4">
-      <Paper
-        elevation={3}
-        sx={{
-          p: 4,
-          pt: 8,
-          width: "100%",
-          maxWidth: 700,
-          textAlign: "center",
-          borderRadius: 2,
-          backgroundColor: "#1e2d4d",
-        }}
-      >
-        <Typography variant="h4" sx={{ color: "white", mb: 2 }}>
-          Waiting Lobby
-        </Typography>
-        <Typography variant="body1" sx={{ color: "white", mb: 2 }}>
-          Players Joined: {players.length}/2
-        </Typography>
-        {players.length >= 2 && (
-          <Typography variant="h5" sx={{ color: "yellow" }}>
-            Starting in {countdown}...
+    <>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f1f3d] p-4">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            pt: 8,
+            width: "100%",
+            maxWidth: 700,
+            textAlign: "center",
+            borderRadius: 2,
+            backgroundColor: "#1e2d4d",
+          }}
+        >
+          <Typography variant="h4" sx={{ color: "white", mb: 2 }}>
+            Waiting Lobby
           </Typography>
-        )}
-      </Paper>
-    </div>
+          <Typography variant="body1" sx={{ color: "white", mb: 2 }}>
+            Players Joined: {lobbyPlayers.length}/2
+          </Typography>
+          <div className="">
+              {lobbyPlayers.map((player) => (
+                <div className="flex flex-col items-center mb-4">
+                  <Avatar
+                    src={player.avatar}
+                    alt={player.name}
+                    sx={{ width: 80, height: 80, mb: 1 }}
+                  />
+                    <Typography variant="h6" sx={{ color: "white" }}>
+                      {player.name}
+                    </Typography>
+                </div>
+            ))}
+          </div>
+          {lobbyPlayers.length >= 2 && (
+            <Typography variant="h5" sx={{ color: "yellow" }}>
+              Starting in {countdown}...
+            </Typography>
+          )}
+        </Paper>
+      </div>
+    </>
   );
 }

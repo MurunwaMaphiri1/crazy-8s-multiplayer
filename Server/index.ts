@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
         console.log("user disconnected:", socket.id);
         gameState.players = gameState.players.filter(p => p.socketId !== socket.id);
         io.emit("room-updated", gameState.players);
-        io.emit("reset-game");
+        resetGameState();
     });
 
 
@@ -91,6 +91,7 @@ io.on("connection", (socket) => {
       advanceTurn();
     })
 
+    //Update game state helper function
     function updatedGameState() {
       io.emit("state-updated", {
         players: gameState.players,
@@ -103,6 +104,22 @@ io.on("connection", (socket) => {
         deck: gameState.deck,
         leaderBoard: gameState.leaderBoard,
       })
+    }
+
+    //Reset game state helper function
+    function resetGameState() {
+      gameState = {
+        players: [] as Player[],
+        deck: new Deck(jsonCards),
+        discardPile: [] as Card[],
+        turnIndex: 0,
+        suit: "" as Suit,
+        leaderBoard: [] as Player[],
+        cardsDealt: false,
+        gamesOver: false,
+        showSuitPicker: false,
+      }
+      io.emit("state-updated", gameState);
     }
 
 
@@ -246,17 +263,7 @@ io.on("connection", (socket) => {
 
   //Reset game state
   socket.on("reset-game", () => {
-    gameState = {
-        players: [] as Player[],
-        deck: new Deck(jsonCards),
-        discardPile: [] as Card[],
-        turnIndex: 0,
-        suit: "" as Suit,
-        leaderBoard: [] as Player[],
-        cardsDealt: false,
-        gamesOver: false,
-        showSuitPicker: false,
-    }
+    resetGameState();
   })
 
 });

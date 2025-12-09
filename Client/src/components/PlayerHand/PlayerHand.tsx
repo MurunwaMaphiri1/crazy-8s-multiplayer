@@ -5,9 +5,10 @@ import { motion, animate } from "framer-motion"
 type PlayerHandProps = {
     cards: CardType[];
     onCardClick: (card: CardType) => void
+    showback?: boolean;
 }
 
-export default function PlayerHand({ cards, onCardClick }: PlayerHandProps) {
+export default function PlayerHand({ cards, onCardClick, showback = false }: PlayerHandProps) {
 
     const cardAnimations = {
         initial: { y: -10, opacity: 0, scale: 0.8 }, // coming from deck
@@ -33,7 +34,7 @@ export default function PlayerHand({ cards, onCardClick }: PlayerHandProps) {
                         <Card  
                             code={card.code} 
                             value={card.value} 
-                            showBack={false} 
+                            showBack={showback} 
                             onClick={() => onCardClick(card)}
                         />
                     </motion.div>

@@ -26,6 +26,15 @@ export default function Multiplayer() {
   const [showLobby, setShowLobby] = useState(true)
   const [countdown, setCountdown] = useState(3);
 
+  const player: Player = {
+      id: crypto.randomUUID(),
+      socketId: "",
+      name: localStorage.getItem("playerName") || "Joker",
+      avatar: localStorage.getItem("playerAvatar") || "/Images/Persona-5-icons/Joker.jpg",
+      cards: [],
+      isBot: false,
+  }
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -33,23 +42,13 @@ export default function Multiplayer() {
       socket = io("http://localhost:3000");
     }
 
-    const player1: Player = {
-      id: crypto.randomUUID(),
-      socketId: "",
-      name: localStorage.getItem("playerName") || "Joker",
-      avatar: localStorage.getItem("playerAvatar") || "/Images/Persona-5-icons/Joker.jpg",
-      cards: [],
-      isBot: false,
-    }
-
     socket.on("connect", () => {
-      player1.socketId = socket.id;
-      socket.emit("join-room", player1);
+      socket.emit("join-room", player);
     })
 
     socket.on("disconnect", () => {
-      player1.socketId = "";
-      socket.emit("disconnect", player1);
+      player.socketId = "";
+      socket.emit("disconnect", player);
     })
 
     socket.on("room-updated", (updatedPlayers: Player[]) => {
@@ -83,16 +82,6 @@ export default function Multiplayer() {
   }, [])
 
   useEffect(() => {
-    if (gameOver) return;
-    if (cardsDealt && players.length > 0 && players[turnIndex]?.isBot === true) {
-      const botTimeout = setTimeout(() => {
-        socket.emit("comp-play");
-      }, 1000)
-      return () => clearTimeout(botTimeout);
-    }
-  }, [turnIndex, cardsDealt, players]);
-
-  useEffect(() => {
     if (deck.cards.length === 0 && discardPile.length > 1) {
       socket.emit("repopulate-deck");
     }
@@ -116,12 +105,7 @@ export default function Multiplayer() {
   if (showLobby) {
     return (
       <div className="relative">
-        {/* <WaitingLobby /> */}
-        {players.length == 2 && (
-          <div className="absolute inset-0 flex items-center justify-center text-black text-4xl">
-            Game starts in {countdown}...
-          </div>
-        )}
+        <WaitingLobby lobbyPlayers={players} />
       </div>
     );
   }
@@ -142,6 +126,10 @@ export default function Multiplayer() {
     socket.emit("change-suit", newSuit);
   }
 
+  const myPlayer = players.find(p => p.socketId === socket.id);
+
+  const opponent = players.find(p => p.socketId !== socket.id);
+
   return (
     <>
       {gameOver ? (
@@ -151,7 +139,7 @@ export default function Multiplayer() {
       ) : cardsDealt ? (
               <div className='flex flex-col items-center min-h-screen justify-center bg-[#0f1f3d]'>
                   <div className="top-40">
-                      <PlayerHand onCardClick={handlePlayCard} cards={players[1]?.cards || []} />
+                      <PlayerHand showback={true} onCardClick={handlePlayCard} cards={opponent?.cards || []} />
                   </div>
                   <div className='flex flex-col mt-3'>
                       <div>
@@ -168,7 +156,7 @@ export default function Multiplayer() {
                   {showSuitPicker && (
                       <SuitChange onClick={handleSuitChange}/>
                   )}
-                  <PlayerHand onCardClick={handlePlayCard} cards={players[0]?.cards || []} />
+                  <PlayerHand onCardClick={handlePlayCard} cards={myPlayer?.cards || []} />
               </div>
       ) : (
               <div className='flex justify-center items-center min-h-screen bg-[#0f1f3d] text-white'>
