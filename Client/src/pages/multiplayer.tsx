@@ -39,7 +39,7 @@ export default function Multiplayer() {
     if (typeof window === "undefined") return;
 
     if (!socket) {
-      socket = io("http://localhost:3000");
+      socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:3000");
     }
 
     socket.on("connect", () => {
