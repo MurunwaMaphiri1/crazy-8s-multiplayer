@@ -1,6 +1,6 @@
 # Crazy Eights
 
-![Game Cover / Logo Placeholder](public/Images/Screenshots/HomePage.png)
+![Game Cover / Logo Placeholder](Client/public/Images/Screenshots/HomePage.png)
 
 Crazy Eights is a shedding-style card game. The goal is simple, get rid of all the cards in your hand before the other player.
 
