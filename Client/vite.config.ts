@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-})
+  server: {
+    allowedHosts: ['crazy-8s-client.onrender.com'],
+  },
+});
