@@ -10,5 +10,8 @@
     "skipLibCheck": true,
     "types": ["node"],             // include Node.js types
     "resolveJsonModule": true,
-  }
+    "outDir": "./dist",             // output directory for compiled files
+    "rootDir": "./"
+  },
+  "include": ["./**/*.ts"],       // include all TypeScript files
 }
