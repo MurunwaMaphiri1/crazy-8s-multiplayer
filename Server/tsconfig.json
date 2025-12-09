@@ -11,7 +11,10 @@
     "types": ["node"],             // include Node.js types
     "resolveJsonModule": true,
     "outDir": "./dist",             // output directory for compiled files
-    "rootDir": "./"
+    "rootDir": "../"
   },
-  "include": ["./**/*.ts"],       // include all TypeScript files
+    "include": [
+      "../Server/**/*.ts",
+      "../Shared/**/*.ts"
+    ]       // include all TypeScript files
 }
