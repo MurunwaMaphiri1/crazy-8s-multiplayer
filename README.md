@@ -1,6 +1,6 @@
 # Crazy Eights
 
-![Game Cover / Logo Placeholder](public/Images/Screenshots/HomePage.png)
+![Game Cover / Logo Placeholder](Client/public/Images/Screenshots/HomePage.png)
 
 Crazy Eights is a shedding-style card game. The goal is simple, get rid of all the cards in your hand before the other player.
 
@@ -37,7 +37,7 @@ npx ts-node index.ts
 
 ## Objective
 
-![Discard Pile Example Placeholder](public/Images/Screenshots/GamePage.png)
+![Discard Pile Example Placeholder](Client/public/Images/Screenshots/GamePage.png)
 
 Play cards from your hand to the discard pile by matching either the **suit** or the **value** of the top card.  
 First player to empty their hand wins the round.
@@ -79,7 +79,7 @@ A valid play ends your turn unless a special card effect says otherwise.
 
 ## Suit Change Component
 
-![Suit Picker Example Placeholder](public/Images/Screenshots/SuitChangeComponent.png)
+![Suit Picker Example Placeholder](Client/public/Images/Screenshots/SuitChangeComponent.png)
 
 - The suit chosen after an 8 becomes the active suit  
 - Normally only one card per turn
@@ -88,18 +88,20 @@ A valid play ends your turn unless a special card effect says otherwise.
 
 ## Winning the Round
 
-![Victory Screen Placeholder](public/Images/Screenshots/Leaderboard.png)
+![Victory Screen Placeholder](Client/public/Images/Screenshots/Leaderboard.png)
 
 - A player wins when they have **no cards left**
 - Remaining players keep their cards  
 
 ---
 
+## Multiplayer demo
+
+
 ## Future Improvements🧠
 
 - Add More players
 - Add card sounds and animations
-- fix problem with disappearing cards whenever a new card is added on mobile devices
 
 ---
 
