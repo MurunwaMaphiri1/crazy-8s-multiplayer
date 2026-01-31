@@ -18,7 +18,7 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
 
     return (
         <>
-            <div className="flex justify-center mt-4 items-center">
+            <div className="flex justify-center mt-4 items-center overflow-x-hidden">
                 {cards.map((card, i) => (
                     <motion.div
                         key={card.code}
@@ -27,8 +27,8 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        transition={{ type: "spring", stiffness: 500, damping: 30, delay: i * 0.05 }}
-                        className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6"
+                        transition={{ type: "spring", stiffness: 300, damping: 30, delay: i * 0.08 }}
+                        className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6 will-change-transform"
                         style={{zIndex: i}}
                     >
                         <Card  
