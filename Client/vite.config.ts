@@ -9,6 +9,8 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    allowedHosts: ['crazy-8s-client.onrender.com'],
+    // allowedHosts: ['crazy-8s-client.onrender.com'],
+    host: '0.0.0.0',
+    port: 5173,
   },
 });

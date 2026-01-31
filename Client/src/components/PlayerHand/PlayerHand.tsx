@@ -18,20 +18,17 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
 
     return (
         <>
-            <div className="flex justify-center mt-4 items-center">
+            <div className="flex mt-4 w-full">
                 {cards.map((card, i) => (
                     <motion.div
                         key={`${card.code}-${i}`}
+                        layout
                         variants={cardAnimations}
-                        initial="initial"
+                        // initial="initial"
                         animate="animate"
                         exit="exit"
                         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        className="first:ml-0"
-                        style={{
-                            transform: `translateX(-${i * 20}px)`,
-                            zIndex: i
-                        }}
+                        className="first:ml-0 -ml-12 sm:-ml-12 md:-ml-6"
                     >
                         <Card  
                             code={card.code} 
