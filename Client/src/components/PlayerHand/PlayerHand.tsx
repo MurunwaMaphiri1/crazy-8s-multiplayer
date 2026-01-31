@@ -34,7 +34,7 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
                         <Card  
                             code={card.code} 
                             value={card.value} 
-                            showBack={false} 
+                            showBack={showback} 
                             onClick={() => onCardClick(card)}
                         />
                     </motion.div>
