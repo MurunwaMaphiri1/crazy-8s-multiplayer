@@ -27,7 +27,7 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30, delay: i * 0.05 }}
                         className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6"
                         style={{zIndex: i}}
                     >
