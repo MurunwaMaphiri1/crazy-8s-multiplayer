@@ -1,13 +1,14 @@
 import Card from "../Card/Card"
 import type { Card as CardType } from "../../../../Shared/utils/interface"
-import { motion, animate } from "framer-motion"
+import { motion } from "framer-motion"
 
 type PlayerHandProps = {
     cards: CardType[];
-    onCardClick: (card: CardType) => void
+    onCardClick: (card: CardType) => void;
+    showback?: boolean;
 }
 
-export default function PlayerHand({ cards, onCardClick }: PlayerHandProps) {
+export default function PlayerHand({ cards, onCardClick, showback = false }: PlayerHandProps) {
 
     const cardAnimations = {
         initial: { y: -10, opacity: 0, scale: 0.8 }, // coming from deck
