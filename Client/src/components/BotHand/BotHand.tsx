@@ -25,8 +25,8 @@ export default function BotHand({ cards }: BotHandProps) {
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        transition={{ type: "spring", stiffness: 500, damping: 30, delay: i * 0.05 }}
-                        className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6"
+                        transition={{ type: "spring", stiffness: 500, damping: 30, delay: 0.05 }}
+                        className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6 will-change-transform"
                         style={{zIndex: i}}
                     >
                         <Card 
