@@ -17,11 +17,15 @@ cd crazy-8s-multiplayer
 
 2. **Install Dependencies**
 ```bash
+cd Client
+npm install
+cd Server
 npm install
 ```
 
 3. **Start the development server**
 ```bash
+cd Client
 npm run dev
 ```
 
@@ -31,6 +35,7 @@ npm run dev
 
 5. **Run multiplayer server**
 ```bash
+cd Server
 npx ts-node index.ts
 ```
 ---
