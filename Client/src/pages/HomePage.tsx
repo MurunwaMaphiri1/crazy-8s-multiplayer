@@ -7,7 +7,7 @@ export default function Home() {
   const { resetGame } = useGameStore();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f1f3d] p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f1f3d] p-4 font-p5hatty">
       {/* Container for image + paper */}
       <div className="relative w-full max-w-[700px]">
         {/* Logo positioned above the paper */}
@@ -52,7 +52,7 @@ export default function Home() {
               fontWeight: "normal",
               mt: 9,
               color: "white",
-              fontFamily: "Galindo, sans-serif",
+              fontFamily: "P5Hatty, sans-serif",
             }}
           >
            Welcome to Crazy 8&apos;s
@@ -64,9 +64,8 @@ export default function Home() {
               fontWeight: "normal",
               mb: 2,
               color: "white",
-              // fontFamily: "P5Hatty, sans-serif",
-              fontFamily: "Galindo, sans-serif",
-              fontSize: 15
+              fontFamily: "P5Hatty, sans-serif",
+              fontSize: 19,
             }}
           >
             Start Playing
@@ -79,7 +78,8 @@ export default function Home() {
               mb: 3,
               width: 300,
               height: 60,
-              fontFamily: "Galindo, sans-serif",
+              fontFamily: "P5Hatty, sans-serif",
+              fontSize: 19,
               color: "white",
               borderColor: "rgba(255, 255, 255, 0.3)",
               "&:hover": {
@@ -104,7 +104,8 @@ export default function Home() {
               mb: 3,
               width: 300,
               height: 60,
-              fontFamily: "Galindo, sans-serif",
+              fontFamily: "P5Hatty, sans-serif",
+              fontSize: 19,
               color: "white",
               borderColor: "rgba(255, 255, 255, 0.3)",
               "&:hover": {
@@ -126,8 +127,8 @@ export default function Home() {
             sx={{
               color: "white",
               textDecoration: "underline",
-              fontFamily: "Galindo, sans-serif",
-              fontSize: 15
+              fontFamily: "P5Hatty, sans-serif",
+              fontSize: 19
             }}
           >
             Profile settings

@@ -7,3 +7,14 @@
 .PlayerHand {
     -webkit-overflow-scrolling: touch;
 }
+
+@font-face {
+    font-family: 'P5Hatty';
+    src: url('../public/static/fonts/p5hatty-1.ttf') format('truetype');
+}
+
+@layer base {
+    body {
+        font-family: 'P5Hatty', sans-serif;
+    }
+}

@@ -7,7 +7,11 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'p5hatty': ['P5Hatty', 'sans-serif'],
+      }
+    },
   },
   plugins: [
     react(),

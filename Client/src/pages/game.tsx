@@ -60,12 +60,12 @@ export default function Game() {
                             <BotHand cards={players[1]?.cards || []} />
                         </div>
                         <div className='flex flex-col mt-3'>
-                            <div className='text-white font-bold'>
+                            <div className='text-white'>
                                 <p>
                                     Current suit: {suit}
                                 </p>
                             </div>
-                            <div className='text-white font-bold'>
+                            <div className='text-white'>
                                 <p>
                                     Player Turn: {players[turnIndex]?.name}
                                 </p>
