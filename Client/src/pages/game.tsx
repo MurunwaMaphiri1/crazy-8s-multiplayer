@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGameStore } from "../../zustand/store";
 import Scoreboard from "../components/Scoreboard/Leaderboard";
 import SuitChange from "../components/SuitChange/SuitChange";
@@ -8,6 +8,7 @@ import DrawingDeck from "../components/DrawingDeck/DrawingDeck";
 import DiscardPile from "../components/DiscardedPile/DiscardPile";
 
 export default function Game() {
+  const [gameReady, setGameReady] = useState(false);
   const { players, 
           initPlayers,
           repopulateDeck,
@@ -30,6 +31,19 @@ export default function Game() {
   useEffect(() => {
     initPlayers();
   }, [initPlayers]);
+
+  useEffect(() => {
+    if (!cardsDealt) {
+        setGameReady(false);
+        return;
+    }
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            setGameReady(true);
+        })
+    })
+  }, [cardsDealt]);
 
   useEffect(() => {
     if (gamesOver) return;
