@@ -69,7 +69,11 @@ export default function Game() {
                     <Scoreboard leaderboard={leaderBoard} playerId={leaderBoard[0].id} />
                 </div>
             ) : cardsDealt ? (
-                    <div className='flex flex-col items-center min-h-screen justify-center bg-[#0f1f3d]'>
+                    <div className={`
+                        flex flex-col items-center min-h-screen justify-center bg-[#0f1f3d]
+                        ${gameReady ? "opacity-100 blur-0 pointer-events-auto" : "opacity-0 blur-md pointer-events-none"}`
+                        }
+                    >
                         <div className="top-40">
                             <BotHand cards={players[1]?.cards || []} />
                         </div>
