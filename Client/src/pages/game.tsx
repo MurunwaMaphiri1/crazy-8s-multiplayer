@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useGameStore } from "../../zustand/store";
 import Scoreboard from "../components/Scoreboard/Leaderboard";
 import SuitChange from "../components/SuitChange/SuitChange";
@@ -8,7 +8,6 @@ import DrawingDeck from "../components/DrawingDeck/DrawingDeck";
 import DiscardPile from "../components/DiscardedPile/DiscardPile";
 
 export default function Game() {
-  const [gameReady, setGameReady] = useState(false);
   const { players, 
           initPlayers,
           repopulateDeck,
@@ -31,19 +30,6 @@ export default function Game() {
   useEffect(() => {
     initPlayers();
   }, [initPlayers]);
-
-  useEffect(() => {
-    if (!cardsDealt) {
-        setGameReady(false);
-        return;
-    }
-
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            setGameReady(true);
-        })
-    })
-  }, [cardsDealt]);
 
   useEffect(() => {
     if (gamesOver) return;
@@ -69,11 +55,7 @@ export default function Game() {
                     <Scoreboard leaderboard={leaderBoard} playerId={leaderBoard[0].id} />
                 </div>
             ) : cardsDealt ? (
-                    <div className={`
-                        flex flex-col items-center min-h-screen justify-center bg-[#0f1f3d]
-                        ${gameReady ? "opacity-100 blur-0 pointer-events-auto" : "opacity-0 blur-md pointer-events-none"}`
-                        }
-                    >
+                    <div className="flex flex-col items-center min-h-screen justify-center bg-[#0f1f3d]">
                         <div className="top-40">
                             <BotHand cards={players[1]?.cards || []} />
                         </div>

@@ -18,27 +18,30 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
 
     return (
         <>
-            <div className="flex justify-center mt-4 items-center">
-                {cards.map((card, i) => (
-                    <motion.div
-                        key={card.code}
-                        layout
-                        variants={cardAnimations}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.05 }}
-                        className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6 will-change-transform"
-                        style={{zIndex: i}}
-                    >
-                        <Card  
-                            code={card.code} 
-                            value={card.value} 
-                            showBack={showback} 
-                            onClick={() => onCardClick(card)}
-                        />
-                    </motion.div>
-                ))}
+            <div 
+                className="flex justify-center mt-4 items-center">
+                    {cards.map((card, i) => (
+                        <motion.div
+                            key={card.code}
+                            layout="position"
+                            variants={cardAnimations}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.05 }}
+                            className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6"
+                            style={{
+                                zIndex: i,
+                            }}
+                        >
+                            <Card  
+                                code={card.code} 
+                                value={card.value} 
+                                showBack={showback} 
+                                onClick={() => onCardClick(card)}
+                            />
+                        </motion.div>
+                    ))}
             </div>
         </>
     )
