@@ -19,7 +19,7 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
     return (
         <>
             <div 
-                className="flex justify-center mt-4 items-center">
+                className="flex justify-center mt-4 items-center relative">
                     {cards.map((card, i) => (
                         <motion.div
                             key={card.code}
