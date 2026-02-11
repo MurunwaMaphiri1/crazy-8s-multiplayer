@@ -32,6 +32,9 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
                             className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6"
                             style={{
                                 zIndex: i,
+                                transform: 'translateZ(0)',
+                                willChange: 'transform, opacity',
+                                WebkitTransform: 'translateZ(0)',
                             }}
                         >
                             <Card  
