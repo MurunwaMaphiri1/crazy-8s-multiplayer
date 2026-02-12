@@ -11,8 +11,7 @@ type PlayerHandProps = {
 export default function PlayerHand({ cards, onCardClick, showback = false }: PlayerHandProps) {
 
     const cardAnimations = {
-        // initial: { y: -10, opacity: 0, scale: 0.8 }, // coming from deck
-        initial: { y: 10, opacity: 0 }, // coming from deck
+        initial: { y: -10, opacity: 0, scale: 0.8 }, // coming from deck
         animate: { y: 0, opacity: 1, scale: 1 },    // in hand
         exit: { y: 50, opacity: 0, scale: 0.8 },    // going to discard pile
     };
@@ -24,7 +23,7 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
                     {cards.map((card, i) => (
                         <motion.div
                             key={card.code}
-                            // layout="position"
+                            layout="position"
                             variants={cardAnimations}
                             initial="initial"
                             animate="animate"
