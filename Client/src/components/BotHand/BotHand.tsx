@@ -16,7 +16,7 @@ export default function BotHand({ cards }: BotHandProps) {
 
     return (
         <>
-            <div className="flex justify-center mt-4 items-center">
+            <div className="flex justify-center mt-4 items-center relative">
                 {cards.map((card, i) => (
                     <motion.div 
                         key={card.code}
@@ -26,7 +26,7 @@ export default function BotHand({ cards }: BotHandProps) {
                         animate="animate"
                         exit="exit"
                         transition={{ type: "spring", stiffness: 500, damping: 30, delay: 0.05 }}
-                        className="first:ml-0 -ml-[60px] sm:-ml-8 md:-ml-6 will-change-transform"
+                        className="first:ml-0 -ml-[3.75em] sm:-ml-[2em] md:-ml-[1.2em]"
                         style={{zIndex: i}}
                     >
                         <Card 
