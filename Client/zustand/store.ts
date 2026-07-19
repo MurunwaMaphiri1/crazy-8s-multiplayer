@@ -146,20 +146,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (players[turnIndex].isBot == true) {
                 const suitCount: Record<string, number> = {};
 
-                for (let card of players[turnIndex].cards) {
+                for (const card of players[turnIndex].cards) {
                     suitCount[card.suit] = (suitCount[card.suit] || 0) + 1;
                 }
 
                 let maxCount = 0;
                 let chosenSuit: Card['suit'] | null = null;
 
-                for (let [cardSuit, count] of Object.entries(suitCount)) {
+                for (const [cardSuit, count] of Object.entries(suitCount)) {
                     if (count > maxCount) {
                         maxCount = count;
                         chosenSuit = cardSuit as Card['suit'];
                     }
                 }
-                
+
                 setSuit(chosenSuit || selected.suit);
 
             } else {
@@ -175,10 +175,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   draw: () => {
     const { players, turnIndex, deck, setPlayers, advanceTurn } = get();
     const drawCard = deck.takeCard();
-    
+
     if (!drawCard) return;
 
-    const updatedPlayers = players.map((player, index) => 
+    const updatedPlayers = players.map((player, index) =>
         index === turnIndex
             ? { ...player, cards: [...player.cards, drawCard] }
             : player
@@ -194,7 +194,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const drawnCards: Card[] = deck.takeCards(2);
     const nextPlayerIndex = (turnIndex + 1) % players.length;
 
-    const updatedPlayers = players.map((player, index) => 
+    const updatedPlayers = players.map((player, index) =>
         index === nextPlayerIndex
             ? { ...player, cards: [...player.cards, ...drawnCards] }
             : player
@@ -268,7 +268,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     return;
                 }
             } else {
-                const updatedPlayers = players.map((player, index) => 
+                const updatedPlayers = players.map((player, index) =>
                     index === currentPlayerIndex
                         ? { ...player, cards: newHand }
                         : player
@@ -312,7 +312,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const currentPlayer = players[turnIndex];
     let selected;
 
-    for (let card of currentPlayer.cards) {
+    for (const card of currentPlayer.cards) {
             if (
                 card.suit === currentSuit ||
                 card.value === topCard.value ||
@@ -321,10 +321,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 selected = card;
                 break;
             }
-    } 
+    }
 
     if (selected) {
-        const updatedHand = currentPlayer.cards.filter((card) => 
+        const updatedHand = currentPlayer.cards.filter((card) =>
             !(card.suit === selected.suit && card.value === selected.value)
         )
 
@@ -334,9 +334,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
             const playersWithoutWinner = players.filter(player => player.id !== currentPlayer.id);
 
-            setPlayers(playersWithoutWinner); 
+            setPlayers(playersWithoutWinner);
             setDiscardPile([...discardPile, selected]);
-                
+
             if (playersWithoutWinner.length === 1) {
                 setLeaderboard([...updatedLeaderboard, playersWithoutWinner[0]]);
                 setGameOver(true);
@@ -344,7 +344,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }
 
         } else {
-                const updatedPlayers = players.map((player, index) => 
+                const updatedPlayers = players.map((player, index) =>
                     index === turnIndex
                         ? { ...player, cards: updatedHand }
                         : player

@@ -24,12 +24,12 @@ export default function Card({ code, showBack = false, onClick }: CardProps) {
 
   return (
     <div
-        onClick={onClick} 
+        onClick={onClick}
         className="relative flex h-[150px] max-w-[100px] w-full rounded-sm overflow-hidden shadow-lg bg-white"
         style={{ cursor: 'pointer' }}
     >
       <img
-        className="w-full h-full object-fit"
+        className="w-full h-full object-cover"
         src={imageSrc}
         alt={showBack ? "Card back" : `${cardData.value} of ${cardData.suit}`}
         width={100}

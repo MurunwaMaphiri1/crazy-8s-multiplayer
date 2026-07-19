@@ -1,6 +1,6 @@
 import Card from "../Card/Card"
 import type { Card as CardType } from "../../../../Shared/utils/interface"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 
 type PlayerHandProps = {
     cards: CardType[];
@@ -18,31 +18,32 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
 
     return (
         <>
-            <div 
-                className="flex justify-center mt-4 items-center relative">
-                    {cards.map((card, i) => (
-                        <motion.div
-                            key={card.code}
-                            layout="position"
-                            variants={cardAnimations}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.05 }}
-                            className="first:ml-0 -ml-[3.75em] sm:-ml-[2em] md:-ml-[1.2em]"
-                            style={{
-                                zIndex: i,
-                                willChange: "transform",
-                            }}
-                        >
-                            <Card  
-                                code={card.code} 
-                                value={card.value} 
-                                showBack={showback} 
-                                onClick={() => onCardClick(card)}
-                            />
-                        </motion.div>
-                    ))}
+            <div
+              className="flex justify-center mt-4 items-center relative">
+                <AnimatePresence>
+                  {cards.map((card, i) => (
+                      <motion.div
+                          key={card.code}
+                          layout="position"
+                          variants={cardAnimations}
+                          initial="initial"
+                          animate="animate"
+                          exit="exit"
+                          transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.05 }}
+                          className="first:ml-0 -ml-[3.75em] sm:-ml-[2em] md:-ml-[1.2em]"
+                          style={{
+                              zIndex: i,
+                          }}
+                      >
+                          <Card
+                              code={card.code}
+                              value={card.value}
+                              showBack={showback}
+                              onClick={() => onCardClick(card)}
+                          />
+                      </motion.div>
+                  ))}
+                </AnimatePresence>
             </div>
         </>
     )

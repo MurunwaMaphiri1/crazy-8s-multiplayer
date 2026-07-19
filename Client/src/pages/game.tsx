@@ -8,7 +8,7 @@ import DrawingDeck from "../components/DrawingDeck/DrawingDeck";
 import DiscardPile from "../components/DiscardedPile/DiscardPile";
 
 export default function Game() {
-  const { players, 
+  const { players,
           initPlayers,
           repopulateDeck,
           changeSuit,
@@ -26,10 +26,20 @@ export default function Game() {
           showSuitPicker
         } = useGameStore();
 
-        
+
   useEffect(() => {
     initPlayers();
   }, [initPlayers]);
+
+  // Preload card images to avoid lazy loading issues
+  useEffect(() => {
+    deck.cards.forEach(c => {
+      const img = new Image()
+      img.src = c.image
+      img.decode().catch(() => {})
+      if (c.backImage) { const b = new Image(); b.src = c.backImage }
+    })
+  }, [])
 
   useEffect(() => {
     if (gamesOver) return;
@@ -47,7 +57,7 @@ export default function Game() {
         }
   }, [deck.cards.length, discardPile.length]);
 
-        
+
     return (
         <>
             {gamesOver ? (

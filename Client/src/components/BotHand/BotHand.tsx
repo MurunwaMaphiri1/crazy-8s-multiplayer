@@ -18,7 +18,7 @@ export default function BotHand({ cards }: BotHandProps) {
         <>
             <div className="flex justify-center mt-4 items-center relative">
                 {cards.map((card, i) => (
-                    <motion.div 
+                    <motion.div
                         key={card.code}
                         layout
                         variants={cardAnimations}
@@ -29,9 +29,9 @@ export default function BotHand({ cards }: BotHandProps) {
                         className="first:ml-0 -ml-[3.75em] sm:-ml-[2em] md:-ml-[1.2em]"
                         style={{zIndex: i}}
                     >
-                        <Card 
-                            code={card.code} 
-                            value={card.value} 
+                        <Card
+                            code={card.code}
+                            value={card.value}
                             showBack={true}
                         />
                     </motion.div>
