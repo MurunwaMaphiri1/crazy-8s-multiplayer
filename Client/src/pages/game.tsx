@@ -26,6 +26,7 @@ export default function Game() {
           showSuitPicker
         } = useGameStore();
 
+  const CDN_BASE = import.meta.env.VITE_CARD_ASSET_BASE_URL
 
   useEffect(() => {
     initPlayers();
@@ -35,10 +36,11 @@ export default function Game() {
   useEffect(() => {
     deck.cards.forEach(c => {
       const img = new Image()
-      img.src = c.image
+      img.src = `${CDN_BASE}/${c.code}.svg`
       img.decode().catch(() => {})
-      if (c.backImage) { const b = new Image(); b.src = c.backImage }
     })
+    const back = new Image()
+    back.src = `${CDN_BASE}/card back.png`
   }, [])
 
   useEffect(() => {
