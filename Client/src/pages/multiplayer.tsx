@@ -5,12 +5,12 @@ import PlayerHand from "../components/PlayerHand/PlayerHand";
 import DrawingDeck from "../components/DrawingDeck/DrawingDeck";
 import DiscardPile from "../components/DiscardedPile/DiscardPile";
 import WaitingLobby from "../components/WaitingLobby/WaitingLobby";
-import type { Player, Card, Suit } from "../../../Shared/utils/interface";
+import type { Player, Card, Suit, GameState } from "../../../Shared/utils/interface";
 import { Deck } from "../../../Shared/utils/Deck";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import cards from "../../../Shared/utils/deckofcards.json";
 
-let socket: any = null;
+let socket: Socket | null = null;
 const jsonCards = cards as Card[];
 
 export default function Multiplayer() {
@@ -43,19 +43,19 @@ export default function Multiplayer() {
     }
 
     socket.on("connect", () => {
-      socket.emit("join-room", player);
+      socket?.emit("join-room", player);
     })
 
     socket.on("disconnect", () => {
       player.socketId = "";
-      socket.emit("disconnect", player);
+      socket?.emit("disconnect", player);
     })
 
     socket.on("room-updated", (updatedPlayers: Player[]) => {
       setPlayers(updatedPlayers);
     })
 
-    socket.on("state-updated", (state : any) => {
+    socket.on("state-updated", (state : GameState) => {
       setPlayers(state.players);
       setDiscardPile(state.discardPile);
       setTurnIndex(state.turnIndex);
@@ -67,23 +67,23 @@ export default function Multiplayer() {
     })
 
     return () => {
-      socket.off("connect");
-      socket.off("room-updated");
-      socket.off("cards-dealt");
+      socket?.off("connect");
+      socket?.off("room-updated");
+      socket?.off("cards-dealt");
     }
   }, [])
 
   useEffect(() => {
-    socket.on("turn-advanced", (newTurnIndex: number) => {
+    socket?.on("turn-advanced", (newTurnIndex: number) => {
       setTurnIndex(newTurnIndex);
     })
 
-    return () => socket.off("turn-advanced")
+    return () => { socket?.off("turn-advanced") }
   }, [])
 
   useEffect(() => {
     if (deck.cards.length === 0 && discardPile.length > 1) {
-      socket.emit("repopulate-deck");
+      socket?.emit("repopulate-deck");
     }
   }, [deck.cards.length, discardPile.length]);
 
@@ -111,24 +111,24 @@ export default function Multiplayer() {
   }
 
   const handleDealCards = () => {
-    socket.emit("dealCards");
+    socket?.emit("dealCards");
   }
 
   const handleDrawCard = () => {
-    socket.emit("draw-card");
+    socket?.emit("draw-card");
   }
 
   const handlePlayCard = (card: Card) => {
-    socket.emit("playCard", card);
+    socket?.emit("playCard", card);
   }
 
   const handleSuitChange = (newSuit: Suit) => {
-    socket.emit("change-suit", newSuit);
+    socket?.emit("change-suit", newSuit);
   }
 
-  const myPlayer = players.find(p => p.socketId === socket.id);
+  const myPlayer = players.find(p => p.socketId === socket?.id);
 
-  const opponent = players.find(p => p.socketId !== socket.id);
+  const opponent = players.find(p => p.socketId !== socket?.id);
 
   return (
     <>

@@ -19,6 +19,17 @@ export interface Bot {
     isBot: boolean,
 }
 
+export interface GameState {
+  players: Player[];
+  discardPile: Card[];
+  turnIndex: number;
+  suit: Suit;
+  cardsDealt: boolean;
+  showSuitPicker: boolean;
+  gamesOver: boolean;
+  leaderBoard: Player[];
+}
+
 export interface Card {
     code: string;
     // image: string;
