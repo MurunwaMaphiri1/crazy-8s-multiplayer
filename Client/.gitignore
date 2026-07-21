@@ -1,4 +1,14 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# Env files
 .env
+.env.local
+
 # Logs
 logs
 *.log

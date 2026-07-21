@@ -21,9 +21,9 @@ export interface Bot {
 
 export interface Card {
     code: string;
-    image: string; 
-    backImage: string;
-    value: CardValue; 
+    // image: string;
+    // backImage: string;
+    value: CardValue;
     suit: Suit;
-    action: Action;  
+    action: Action;
 }

@@ -20,7 +20,10 @@ export default function Card({ code, showBack = false, onClick }: CardProps) {
     )
   }
 
-  const imageSrc = showBack ? cardData.backImage : cardData.image
+  // const imageSrc = showBack ? cardData.backImage : cardData.image
+  const imageSrc = showBack
+  ? `${import.meta.env.VITE_CDN_BASE}/card back black.png`
+  : `${import.meta.env.VITE_CDN_BASE}/${code}.svg`
 
   return (
     <div
