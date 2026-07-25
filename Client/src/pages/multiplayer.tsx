@@ -35,6 +35,19 @@ export default function Multiplayer() {
       isBot: false,
   }
 
+  const CDN_BASE = import.meta.env.VITE_CDN_BASE
+
+  // Preload card images to avoid lazy loading issues
+  useEffect(() => {
+    deck.cards.forEach(c => {
+      const img = new Image()
+      img.src = `${CDN_BASE}/${c.code}.svg`
+      img.decode().catch(() => {})
+    })
+    const back = new Image()
+    back.src = `${CDN_BASE}/card back black.png`
+  }, [])
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
