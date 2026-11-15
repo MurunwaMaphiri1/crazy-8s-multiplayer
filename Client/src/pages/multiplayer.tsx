@@ -13,10 +13,21 @@ import cards from "../../../Shared/utils/deckofcards.json";
 let socket: Socket | null = null;
 const jsonCards = cards as Card[];
 
+// Face-down stand-ins for cards the server doesn't send us (opponent hands,
+// the draw pile). They carry no real card data, only a unique key.
+const hiddenCards = (count: number): Card[] =>
+  Array.from({ length: count }, (_, i) => ({
+    code: `hidden-${i}`,
+    value: "2",
+    suit: "CLUBS",
+    action: "None",
+  }));
+
 export default function Multiplayer() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [deck] = useState(() => new Deck(jsonCards));
   const [discardPile, setDiscardPile] = useState<Card[]>([]);
+  const [deckCount, setDeckCount] = useState(0);
   const [turnIndex, setTurnIndex] = useState(0);
   const [suit, setSuit] = useState("");
   const [leaderBoard, setLeaderBoard] = useState<Player[]>([]);
@@ -59,9 +70,10 @@ export default function Multiplayer() {
       socket?.emit("join-room", player);
     })
 
+    // "disconnect" is a reserved socket.io event and can't be emitted;
+    // the server already gets its own "disconnect" when this socket drops.
     socket.on("disconnect", () => {
       player.socketId = "";
-      socket?.emit("disconnect", player);
     })
 
     socket.on("room-updated", (updatedPlayers: Player[]) => {
@@ -71,6 +83,7 @@ export default function Multiplayer() {
     socket.on("state-updated", (state : GameState) => {
       setPlayers(state.players);
       setDiscardPile(state.discardPile);
+      setDeckCount(state.deckCount);
       setTurnIndex(state.turnIndex);
       setSuit(state.suit);
       setCardsDealt(state.cardsDealt);
@@ -95,10 +108,10 @@ export default function Multiplayer() {
   }, [])
 
   useEffect(() => {
-    if (deck.cards.length === 0 && discardPile.length > 1) {
+    if (cardsDealt && deckCount === 0 && discardPile.length > 1) {
       socket?.emit("repopulate-deck");
     }
-  }, [deck.cards.length, discardPile.length]);
+  }, [cardsDealt, deckCount, discardPile.length]);
 
   useEffect(() => {
     if (players.length >= 2 && showLobby) {
@@ -152,7 +165,7 @@ export default function Multiplayer() {
       ) : cardsDealt ? (
               <div className='flex flex-col items-center min-h-screen justify-center bg-[#0f1f3d]'>
                   <div className="top-40">
-                      <PlayerHand showback={true} onCardClick={handlePlayCard} cards={opponent?.cards || []} />
+                      <PlayerHand showback={true} cards={hiddenCards(opponent?.cardCount ?? 0)} />
                   </div>
                   <div className='flex flex-col mt-3'>
                       <div>
@@ -163,7 +176,7 @@ export default function Multiplayer() {
                       </div>
                   </div>
                   <div className='flex flex-row gap-4 mt-5 justify-center'>
-                      <DrawingDeck onCardClick={handleDrawCard} deck={deck.cards} />
+                      <DrawingDeck onCardClick={handleDrawCard} deck={hiddenCards(deckCount)} />
                       <DiscardPile cards={discardPile} />
                   </div>
                   {showSuitPicker && (

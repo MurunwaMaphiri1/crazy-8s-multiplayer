@@ -9,6 +9,8 @@ export interface Player {
     cards: Card[],
     isBot: boolean,
     socketId?: string,
+    // Set instead of `cards` when the server hides another player's hand
+    cardCount?: number,
 }
 
 export interface Bot {
@@ -28,6 +30,8 @@ export interface GameState {
   showSuitPicker: boolean;
   gamesOver: boolean;
   leaderBoard: Player[];
+  // Only the size of the draw pile is sent, never its order
+  deckCount: number;
 }
 
 export interface Card {

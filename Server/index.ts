@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import type { Player, Card, Suit } from "../Shared/utils/interface";
+import type { Player, Card, Suit, GameState } from "../Shared/utils/interface";
 import { Deck } from "../Shared/utils/Deck";
 import cards from '../Shared/utils/deckofcards.json'
 
@@ -42,25 +42,50 @@ io.on("connection", (socket) => {
             gameState.players.push(player);
         }
 
-        io.emit("room-updated", gameState.players);
-        console.log("Updated players:", gameState.players);
-        io.emit("cards-dealt", {
-          players: gameState.players,
-          discardPile: gameState.discardPile,
-          turnIndex: gameState.turnIndex,
-          suit: gameState.suit,
-          cardsDealt: gameState.cardsDealt,
-        });
+        emitRoomUpdated();
+        console.log("Updated players:", gameState.players.map(p => p.name));
+        updatedGameState();
     });
 
 
     //Disconnect
     socket.on("disconnect", () => {
         console.log("user disconnected:", socket.id);
-        gameState.players = gameState.players.filter(p => p.socketId !== socket.id);
-        io.emit("room-updated", gameState.players);
-        resetGameState();
+        const leavingIndex = gameState.players.findIndex(p => p.socketId === socket.id);
+        if (leavingIndex === -1) return;
+
+        removePlayerAt(leavingIndex);
+        emitRoomUpdated();
+
+        // A game can't continue with fewer than 2 players: reset the table,
+        // but keep whoever is still connected so they don't have to rejoin.
+        if (gameState.cardsDealt && !gameState.gamesOver && gameState.players.length < 2) {
+          resetGameState(gameState.players);
+        } else {
+          updatedGameState();
+        }
     });
+
+
+    //Remove a player and keep turnIndex pointing at the right player
+    function removePlayerAt(index: number) {
+      // If the player leaving was choosing a suit, close the picker so the game doesn't stall
+      if (index === gameState.turnIndex) {
+        gameState.showSuitPicker = false;
+      }
+      gameState.players = gameState.players.filter((_, i) => i !== index);
+      const count = gameState.players.length;
+      if (count === 0) {
+        gameState.turnIndex = 0;
+        return;
+      }
+      // Players after the removed one shift down by one. If the removed player
+      // held the turn, the next player (now at the same index) gets it.
+      if (index < gameState.turnIndex) {
+        gameState.turnIndex -= 1;
+      }
+      gameState.turnIndex %= count;
+    }
 
 
     //Deal cards
@@ -95,25 +120,48 @@ io.on("connection", (socket) => {
       advanceTurn();
     })
 
-    //Update game state helper function
+    //Update game state helper function.
+    //Each socket gets its own view so nobody can read opponents' hands or the
+    //deck order from DevTools (Network → WS frames, React state).
     function updatedGameState() {
-      io.emit("state-updated", {
-        players: gameState.players,
-        discardPile: gameState.discardPile,
-        turnIndex: gameState.turnIndex,
-        suit: gameState.suit,
-        cardsDealt: gameState.cardsDealt,
-        showSuitPicker: gameState.showSuitPicker,
-        gamesOver: gameState.gamesOver,
-        deck: gameState.deck,
-        leaderBoard: gameState.leaderBoard,
-      })
+      for (const [socketId, client] of io.sockets.sockets) {
+        const view: GameState = {
+          players: playersVisibleTo(socketId),
+          discardPile: gameState.discardPile,
+          turnIndex: gameState.turnIndex,
+          suit: gameState.suit,
+          cardsDealt: gameState.cardsDealt,
+          showSuitPicker: gameState.showSuitPicker,
+          gamesOver: gameState.gamesOver,
+          deckCount: gameState.deck.cards.length,
+          leaderBoard: gameState.gamesOver
+            ? gameState.leaderBoard
+            : gameState.leaderBoard.map(p => hideHand(p, socketId)),
+        };
+        client.emit("state-updated", view);
+      }
+    }
+
+    //Players list with every hand except the viewer's replaced by a card count
+    function playersVisibleTo(socketId: string): Player[] {
+      return gameState.players.map(p => hideHand(p, socketId));
+    }
+
+    function hideHand(player: Player, viewerSocketId: string): Player {
+      if (player.socketId === viewerSocketId) return player;
+      return { ...player, cards: [], cardCount: player.cards.length };
+    }
+
+    function emitRoomUpdated() {
+      for (const [socketId, client] of io.sockets.sockets) {
+        client.emit("room-updated", playersVisibleTo(socketId));
+      }
     }
 
     //Reset game state helper function
-    function resetGameState() {
+    function resetGameState(keepPlayers: Player[] = []) {
       gameState = {
-        players: [] as Player[],
+        players: keepPlayers.map(player => ({ ...player, cards: [] })),
         deck: new Deck(jsonCards),
         discardPile: [] as Card[],
         turnIndex: 0,
@@ -123,12 +171,16 @@ io.on("connection", (socket) => {
         gamesOver: false,
         showSuitPicker: false,
       }
-      io.emit("state-updated", gameState);
+      updatedGameState();
     }
 
 
     //Repopulate deck
     socket.on("repopulate-deck", () => {
+      // Every client asks when the deck runs out; only the first request should
+      // act, or later ones would replace the refilled deck with an empty one.
+      if (gameState.deck.cards.length > 0 || gameState.discardPile.length <= 1) return;
+
       const cardsToShuffle = gameState.discardPile.slice(0, -1);
       const topCard = gameState.discardPile[gameState.discardPile.length - 1];
       gameState.deck.reset(cardsToShuffle);
@@ -155,19 +207,18 @@ io.on("connection", (socket) => {
       }
       updatedGameState();
     }
-    
+
 
 
     //Draw card
     socket.on("draw-card", () => {
-      const drawnCard = gameState.deck.takeCard();
       const currentPlayer = gameState.players[gameState.turnIndex];
-
       if (currentPlayer.socketId !== socket.id) return;
 
+      const drawnCard = gameState.deck.takeCard();
       if (!drawnCard) return;
 
-      const updatedPlayers = gameState.players.map((player, index) => 
+      const updatedPlayers = gameState.players.map((player, index) =>
           index === gameState.turnIndex
               ? { ...player, cards: [...player.cards, drawnCard] }
               : player
@@ -179,7 +230,7 @@ io.on("connection", (socket) => {
     });
 
 
-    //Draw 2 cards 
+    //Draw 2 cards
     function draw2() {
       const drawnCards: Card[] = gameState.deck.takeCards(2);
       const nextPlayerIndex = (gameState.turnIndex + 1) % gameState.players.length;
@@ -204,7 +255,7 @@ io.on("connection", (socket) => {
 
     //Play card
     socket.on("playCard", (selectedCard: Card) => {
-      const topCard = gameState.discardPile[gameState.discardPile.length - 1]; 
+      const topCard = gameState.discardPile[gameState.discardPile.length - 1];
       const currentPlayer = gameState.players[gameState.turnIndex];
 
       if (currentPlayer.socketId === socket.id) {
@@ -213,28 +264,42 @@ io.on("connection", (socket) => {
           selectedCard.value === topCard.value ||
           selectedCard.value === "8"
         ) {
-          let cardRemoved = false;
-          const currentPlayer = gameState.players[gameState.turnIndex];
-          const newHand = currentPlayer.cards.filter((card) => {
-            if (!cardRemoved && selectedCard.suit === card.suit && selectedCard.value === card.value) {
-                cardRemoved = true;
-                return false;
-            }
-            return true;
-          })
+          // Only accept a card the player actually holds
+          const handIndex = currentPlayer.cards.findIndex(
+            (card) => card.suit === selectedCard.suit && card.value === selectedCard.value
+          );
+          if (handIndex === -1) return;
+
+          const playedCard = currentPlayer.cards[handIndex];
+          const newHand = currentPlayer.cards.filter((_, i) => i !== handIndex);
 
           if (newHand.length === 0) {
-            const updatedLeaderBoard : Player[] = [...gameState.leaderBoard, currentPlayer];
-            gameState.leaderBoard = updatedLeaderBoard;
+            const winnerIndex = gameState.turnIndex;
+            gameState.discardPile.push(playedCard);
+            // Winner is gone, so nobody picks a suit after a winning 8: the 8's own suit stands
+            gameState.suit = playedCard.suit;
+            gameState.leaderBoard = [...gameState.leaderBoard, { ...currentPlayer, cards: [] }];
 
-            const playersRemaining = gameState.players.filter(player => player.id !== currentPlayer.id);
-            gameState.players = playersRemaining;
+            removePlayerAt(winnerIndex);
+            const playersRemaining = gameState.players;
 
             if (playersRemaining.length === 1) {
               gameState.leaderBoard = [...gameState.leaderBoard, playersRemaining[0]];
               gameState.gamesOver = true;
               updatedGameState();
               return;
+            }
+
+            // After removal, the next player sits at turnIndex. A winning 2 or Jack still applies to them.
+            if (playedCard.value === "2") {
+              const victimIndex = gameState.turnIndex;
+              const drawnCards = gameState.deck.takeCards(2);
+              gameState.players = gameState.players.map((player, index) =>
+                index === victimIndex ? { ...player, cards: [...player.cards, ...drawnCards] } : player
+              );
+              gameState.turnIndex = (victimIndex + 1) % gameState.players.length;
+            } else if (playedCard.value === "JACK") {
+              gameState.turnIndex = (gameState.turnIndex + 1) % gameState.players.length;
             }
 
             updatedGameState();
@@ -246,10 +311,10 @@ io.on("connection", (socket) => {
               : player
           );
           gameState.players = updatedPlayers;
-          gameState.discardPile.push(selectedCard);
+          gameState.discardPile.push(playedCard);
 
           if (selectedCard.value === topCard.value) {
-            gameState.suit = selectedCard.suit;
+            gameState.suit = playedCard.suit;
           }
 
           if (selectedCard.value === "JACK" || selectedCard.value === "2") {

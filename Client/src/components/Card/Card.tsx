@@ -12,6 +12,26 @@ export default function Card({ code, showBack = false, onClick }: CardProps) {
   // Find the card data based on the code
   const cardData = cards.find(card => card.code === code)
 
+  // A face-down card needs no card data, so hidden placeholders (whose real
+  // identity the client never receives) still render as a card back.
+  if (showBack) {
+    return (
+      <div
+          onClick={onClick}
+          className="relative flex h-[150px] max-w-[100px] w-full rounded-sm overflow-hidden shadow-lg bg-white"
+          style={{ cursor: 'pointer' }}
+      >
+        <img
+          className="w-full h-full object-cover"
+          src={`${import.meta.env.VITE_CDN_BASE}/card back black.png`}
+          alt="Card back"
+          width={100}
+          height={150}
+        />
+      </div>
+    )
+  }
+
   if (!cardData) {
     return (
       <div className="flex h-[60px] max-w-60 w-full border-2 border-r-4 border-gray-800 rounded-lg items-center justify-center bg-gray-200">
@@ -20,10 +40,7 @@ export default function Card({ code, showBack = false, onClick }: CardProps) {
     )
   }
 
-  // const imageSrc = showBack ? cardData.backImage : cardData.image
-  const imageSrc = showBack
-  ? `${import.meta.env.VITE_CDN_BASE}/card back black.png`
-  : `${import.meta.env.VITE_CDN_BASE}/${code}.svg`
+  const imageSrc = `${import.meta.env.VITE_CDN_BASE}/${code}.svg`
 
   return (
     <div

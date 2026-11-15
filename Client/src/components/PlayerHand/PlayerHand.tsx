@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion"
 
 type PlayerHandProps = {
     cards: CardType[];
-    onCardClick: (card: CardType) => void;
+    onCardClick?: (card: CardType) => void;
     showback?: boolean;
 }
 
@@ -39,7 +39,7 @@ export default function PlayerHand({ cards, onCardClick, showback = false }: Pla
                               code={card.code}
                               value={card.value}
                               showBack={showback}
-                              onClick={() => onCardClick(card)}
+                              onClick={() => onCardClick?.(card)}
                           />
                       </motion.div>
                   ))}
