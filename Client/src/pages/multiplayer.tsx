@@ -179,7 +179,7 @@ export default function Multiplayer() {
                       <DrawingDeck onCardClick={handleDrawCard} deck={hiddenCards(deckCount)} />
                       <DiscardPile cards={discardPile} />
                   </div>
-                  {showSuitPicker && (
+                  {showSuitPicker && players[turnIndex]?.socketId === socket?.id && (
                       <SuitChange onClick={handleSuitChange}/>
                   )}
                   <PlayerHand onCardClick={handlePlayCard} cards={myPlayer?.cards || []} />
@@ -189,7 +189,7 @@ export default function Multiplayer() {
                   <button
                       className='px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 text-xl'
                       onClick={handleDealCards}
-                      disabled={players.length === 0 && !cardsDealt}
+                      disabled={players.length < 2}
                       style={{ cursor: 'pointer' }}
                   >
                       Deal Cards

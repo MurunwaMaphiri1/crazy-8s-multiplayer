@@ -19,6 +19,7 @@ const io = new Server(server, {
 });
 
 const jsonCards = cards as Card[];
+const VALID_SUITS: Suit[] = ["DIAMONDS", "HEARTS", "CLUBS", "SPADES"];
 
 let gameState = {
     players: [] as Player[],
@@ -90,19 +91,36 @@ io.on("connection", (socket) => {
 
     //Deal cards
     socket.on("dealCards", () => {
+      // Deal once per game (a finished game must be reset first), and only
+      // to a full table.
+      if (gameState.cardsDealt) return;
+      if (gameState.players.length < 2) return;
+
       console.log("Dealing cards...");
+      // Start every deal from a fresh, full deck and an empty table
+      gameState.deck = new Deck(jsonCards);
       gameState.deck.shuffle();
       gameState.players = gameState.players.map(player => ({
         ...player,
         cards: gameState.deck.takeCards(8)
       }));
 
-      gameState.discardPile.push(gameState.deck.takeCard()!);
+      gameState.discardPile = [gameState.deck.takeCard()!];
+      gameState.leaderBoard = [];
+      gameState.gamesOver = false;
+      gameState.showSuitPicker = false;
       gameState.cardsDealt = true;
       gameState.turnIndex = 0;
-      gameState.suit = gameState.discardPile[gameState.discardPile.length - 1].suit;
+      gameState.suit = gameState.discardPile[0].suit;
       updatedGameState();
     })
+
+
+    //True only if this socket belongs to the player whose turn it is
+    function isCurrentPlayer(socketId: string): boolean {
+      const currentPlayer = gameState.players[gameState.turnIndex];
+      return !!currentPlayer && currentPlayer.socketId === socketId;
+    }
 
 
     //Advance turn helper function
@@ -114,10 +132,18 @@ io.on("connection", (socket) => {
 
     //Change suit
     socket.on("change-suit", (newSuit: Suit) => {
+      // Only the player who just played the 8, only while the picker is open,
+      // and only a real suit. Stray or repeated requests are ignored, so they
+      // can't skip anyone's turn.
+      if (!gameState.showSuitPicker) return;
+      if (!isCurrentPlayer(socket.id)) return;
+      if (!VALID_SUITS.includes(newSuit)) return;
+
       gameState.suit = newSuit;
       gameState.showSuitPicker = false;
-      updatedGameState();
+      // Advance first so the state update carries the new turnIndex
       advanceTurn();
+      updatedGameState();
     })
 
     //Update game state helper function.
@@ -212,8 +238,10 @@ io.on("connection", (socket) => {
 
     //Draw card
     socket.on("draw-card", () => {
-      const currentPlayer = gameState.players[gameState.turnIndex];
-      if (currentPlayer.socketId !== socket.id) return;
+      if (!gameState.cardsDealt || gameState.gamesOver) return;
+      if (!isCurrentPlayer(socket.id)) return;
+      // Must pick a suit for the 8 before doing anything else
+      if (gameState.showSuitPicker) return;
 
       const drawnCard = gameState.deck.takeCard();
       if (!drawnCard) return;
@@ -255,6 +283,10 @@ io.on("connection", (socket) => {
 
     //Play card
     socket.on("playCard", (selectedCard: Card) => {
+      if (!gameState.cardsDealt || gameState.gamesOver) return;
+      // Must pick a suit for the 8 before doing anything else
+      if (gameState.showSuitPicker) return;
+
       const topCard = gameState.discardPile[gameState.discardPile.length - 1];
       const currentPlayer = gameState.players[gameState.turnIndex];
 
